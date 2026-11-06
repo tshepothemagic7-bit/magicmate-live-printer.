@@ -24,7 +24,7 @@ class FloatingPrinterService : Service() {
  override fun onCreate() {
   super.onCreate()
   if(Build.VERSION.SDK_INT>=26) getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(channel,"MagicMate floating printer",NotificationManager.IMPORTANCE_LOW))
-  val n=NotificationCompat.Builder(this,channel).setSmallIcon(android.R.drawable.ic_menu_print).setContentTitle("MagicMate printer running").setContentText("Watching @tshepothemagician").setOngoing(true).build()
+  val n=NotificationCompat.Builder(this,channel).setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("MagicMate printer running").setContentText("Watching @tshepothemagician").setOngoing(true).build()
   if(Build.VERSION.SDK_INT>=34) startForeground(41,n,android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE) else startForeground(41,n)
   showOverlay(); connect()
  }
