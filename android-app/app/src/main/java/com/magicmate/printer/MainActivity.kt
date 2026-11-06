@@ -85,11 +85,45 @@ class MainActivity : Activity() {
   header.addView(text(s.name,20f,s.accent,true),LinearLayout.LayoutParams(0,-2,1f))
   header.addView(text("● LIVE",14f,Color.rgb(255,70,90),true))
   val body=LinearLayout(this).apply{orientation=0}
-  val centre=LinearLayout(this).apply{orientation=1;setPadding(10,8,10,8);background=bg(Color.rgb(30,19,43),s.accent)}
-  centre.addView(text("LIVE VIEWER PRINTER",16f,s.accent,true).apply{gravity=Gravity.CENTER})
-  centre.addView(text("Every new viewer gets a printed profile",11f,Color.LTGRAY).apply{gravity=Gravity.CENTER;setPadding(0,3,0,7)})
+  val centre=LinearLayout(this).apply{orientation=1;setPadding(10,8,10,8);gravity=Gravity.CENTER_HORIZONTAL
+   setBackground(bg(when(selected){2->Color.rgb(39,29,12);3->Color.rgb(7,22,38);else->Color.rgb(30,19,43)},s.accent))}
+  when(selected){
+   0->{
+    centre.addView(text("🖨️ PRINTER READY",22f,Color.rgb(255,190,70),true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("VIEWER FACTORY  •  AUTO PRINT ON JOIN",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,3,0,6)})
+    val printer=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(8,5,8,5);background=bg(Color.rgb(64,43,78),s.second)}
+    printer.addView(text("┌──────────────────────┐",14f,s.second,true).apply{gravity=Gravity.CENTER})
+    printer.addView(text("🖨️",46f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
+    printer.addView(text("PRINTING VIEWER PROFILES",12f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
+    printer.addView(text("└─────── ▤ ▤ ─────────┘",14f,s.second,true).apply{gravity=Gravity.CENTER})
+    centre.addView(printer,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=7})
+   }
+   1->{
+    centre.addView(text("🖨️ READY TO PRINT",22f,Color.rgb(255,210,90),true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("MYSTERY PRINT LAB",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,3,0,6)})
+    val mystery=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(10,7,10,7);background=bg(Color.rgb(47,31,68),s.second)}
+    mystery.addView(text("╔══════════════════════╗",14f,s.second,true).apply{gravity=Gravity.CENTER})
+    mystery.addView(text("🖨️",48f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
+    mystery.addView(text("MYSTERY PAPER LOADING…",12f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
+    mystery.addView(text("╚══════ ▤ ▤ ▤ ═══════╝",14f,s.second,true).apply{gravity=Gravity.CENTER})
+    centre.addView(mystery,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=7})
+   }
+   2->{
+    centre.addView(text("✦ THE VIP WALL ✦",22f,Color.rgb(255,207,92),true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("EXCLUSIVE GUEST DISPLAY",11f,Color.rgb(255,232,180),true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,8)})
+    val plaque=text("♛   VIP MEMBERS   ♛",20f,Color.rgb(255,224,150),true).apply{gravity=Gravity.CENTER;background=bg(Color.rgb(83,58,17),Color.rgb(255,207,92))}
+    centre.addView(plaque,LinearLayout.LayoutParams(-1,0,1f))
+   }
+   else->{
+    centre.addView(text("⚡ DIGITAL ARENA ⚡",22f,Color.rgb(70,220,255),true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("PLAYER ENTRY SYSTEM",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,8)})
+    val arena=text("◈  PLAYER SPAWN ZONE  ◈\n\n⚡  READY  ⚡",20f,Color.rgb(110,235,255),true).apply{gravity=Gravity.CENTER;background=bg(Color.rgb(7,39,58),Color.rgb(60,210,255))}
+    centre.addView(arena,LinearLayout.LayoutParams(-1,0,1f))
+   }
+  }
   viewerGrid=LinearLayout(this).apply{orientation=1;setPadding(4,4,4,4)}
   viewerScroll=ScrollView(this).apply{isFillViewport=true;addView(viewerGrid)}
+  centre.addView(text(if(selected==2)"NEW VIP ARRIVALS" else if(selected==3)"NEW PLAYERS JOINING" else "LIVE PRINT QUEUE",12f,s.accent,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,3)})
   centre.addView(viewerScroll,LinearLayout.LayoutParams(-1,0,1f))
   centre.addView(text(s.line,11f,s.second,true).apply{gravity=Gravity.CENTER;setPadding(2,6,2,0)})
   val right=panel("GIFTS & LIVE ACTIVITY",s.second)
