@@ -27,7 +27,9 @@ class MainActivity : Activity() {
   Style("THE VIEWER FACTORY","COMMENT YOUR NAME TO ENTER THE FACTORY!  •  SEND A GIFT TO ACTIVATE THE MACHINE!",Color.rgb(190,75,255),Color.rgb(255,184,64),"⚙  VIEWER IN  •  RECEIPT OUT  ⚙"),
   Style("THE MYSTERY PRINTER","SEND A GIFT TO UNLOCK THE PRINTER!  •  COMMENT TO MAKE THE MACHINE REACT!",Color.rgb(165,83,255),Color.rgb(255,205,75),"✦  A SURPRISE IS WAITING  ✦"),
   Style("THE VIP EXPERIENCE","SEND A GIFT TO JOIN THE VIP WALL!  •  COMMENT AND GET NOTICED!",Color.rgb(255,190,65),Color.rgb(190,90,255),"✧  VIP LOUNGE  ✧"),
-  Style("THE DIGITAL ARENA","COMMENT TO JOIN THE ARENA!  •  SEND A GIFT TO POWER UP!",Color.rgb(60,210,255),Color.rgb(190,75,255),"⚡  ARENA OPEN  ⚡")
+  Style("THE DIGITAL ARENA","COMMENT TO JOIN THE ARENA!  •  SEND A GIFT TO POWER UP!",Color.rgb(60,210,255),Color.rgb(190,75,255),"⚡  ARENA OPEN  ⚡"),
+  Style("COSMIC CONSTELLATION","DROP A COMMENT AND BECOME A STAR!  •  SEND A GIFT TO LIGHT UP THE GALAXY!",Color.rgb(126,190,255),Color.rgb(208,157,255),"✦  EVERY VIEWER ADDS A STAR  ✦"),
+  Style("DEEP SEA AQUARIUM","SAY HELLO TO SWIM INTO THE AQUARIUM!  •  SEND A GIFT TO FEED THE DEEP!",Color.rgb(62,225,210),Color.rgb(85,170,255),"◉  THE OCEAN IS ALIVE  ◉")
  )
  private var selected=0
  private var socket:Socket?=null
@@ -47,7 +49,7 @@ class MainActivity : Activity() {
 
  override fun onCreate(savedInstanceState:Bundle?){
   super.onCreate(savedInstanceState)
-  selected=getPreferences(0).getInt("style",0).coerceIn(0,3)
+  selected=getPreferences(0).getInt("style",0).coerceIn(0,5)
   tts=TextToSpeech(this){result->
    if(result==TextToSpeech.SUCCESS){
     tts?.language=Locale.UK
@@ -94,7 +96,7 @@ class MainActivity : Activity() {
   header.addView(text("● LIVE",14f,Color.rgb(255,70,90),true))
   val body=LinearLayout(this).apply{orientation=0}
   val centre=LinearLayout(this).apply{orientation=1;setPadding(10,8,10,8);gravity=Gravity.CENTER_HORIZONTAL
-   setBackground(bg(when(selected){2->Color.rgb(39,29,12);3->Color.rgb(7,22,38);else->Color.rgb(30,19,43)},s.accent))}
+   setBackground(bg(when(selected){2->Color.rgb(39,29,12);3->Color.rgb(7,22,38);4->Color.rgb(8,13,38);5->Color.rgb(3,31,43);else->Color.rgb(30,19,43)},s.accent))}
   when(selected){
    0->{
     centre.addView(text("🖨️ PRINTER READY",22f,Color.rgb(255,190,70),true).apply{gravity=Gravity.CENTER})
@@ -124,6 +126,18 @@ class MainActivity : Activity() {
     val plaque=text("♛   VIP MEMBERS   ♛",20f,Color.rgb(255,224,150),true).apply{gravity=Gravity.CENTER;background=bg(Color.rgb(83,58,17),Color.rgb(255,207,92))}
     centre.addView(plaque,LinearLayout.LayoutParams(-1,0,1f))
    }
+   4->{
+    centre.addView(text("✦ COSMIC CONSTELLATION ✦",22f,Color.rgb(155,195,255),true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("YOUR AUDIENCE BECOMES THE GALAXY",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,8)})
+    val galaxy=text("✧       ·       ✦       ·       ✧\n\n       ✦       ◌       ✦\n\n✧       ·       ✦       ·       ✧",22f,Color.rgb(180,195,255),true).apply{gravity=Gravity.CENTER;background=bg(Color.rgb(14,20,57),Color.rgb(126,190,255))}
+    centre.addView(galaxy,LinearLayout.LayoutParams(-1,0,1f))
+   }
+   5->{
+    centre.addView(text("◉ DEEP SEA AQUARIUM ◉",22f,Color.rgb(90,235,220),true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("EVERY VIEWER SWIMS INTO YOUR WORLD",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,8)})
+    val ocean=text("  〰       🫧       〰\n\n       🪸       🐠\n\n  🫧       〰       🐟",22f,Color.rgb(110,225,235),true).apply{gravity=Gravity.CENTER;background=bg(Color.rgb(4,53,70),Color.rgb(62,225,210))}
+    centre.addView(ocean,LinearLayout.LayoutParams(-1,0,1f))
+   }
    else->{
     centre.addView(text("⚡ DIGITAL ARENA ⚡",22f,Color.rgb(70,220,255),true).apply{gravity=Gravity.CENTER})
     centre.addView(text("PLAYER ENTRY SYSTEM",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,8)})
@@ -133,7 +147,7 @@ class MainActivity : Activity() {
   }
   viewerGrid=LinearLayout(this).apply{orientation=1;setPadding(4,4,4,4)}
   viewerScroll=ScrollView(this).apply{isFillViewport=true;addView(viewerGrid)}
-  centre.addView(text(if(selected==2)"NEW VIP ARRIVALS" else if(selected==3)"NEW PLAYERS JOINING" else "LIVE PRINT QUEUE",12f,s.accent,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,3)})
+  centre.addView(text(when(selected){2->"NEW VIP ARRIVALS";3->"NEW PLAYERS JOINING";4->"NEW STARS IN THE GALAXY";5->"NEW CREATURES IN THE AQUARIUM";else->"LIVE PRINT QUEUE"},12f,s.accent,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,3)})
   centre.addView(viewerScroll,LinearLayout.LayoutParams(-1,0,1f))
   centre.addView(text(s.line,11f,s.second,true).apply{gravity=Gravity.CENTER;setPadding(2,6,2,0)})
   val right=panel("GIFTS & LIVE ACTIVITY",s.second)
@@ -181,11 +195,13 @@ class MainActivity : Activity() {
    LinearLayout(this).apply{orientation=0;gravity=Gravity.TOP;weightSum=2f}
     .also{currentViewerRow=it;grid.addView(it,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=7})}
   }else row
-  val card=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(6,8,6,8);background=bg(Color.rgb(247,243,250),styles[selected].second)}
-  val pic=ImageView(this).apply{layoutParams=LinearLayout.LayoutParams(54,54).apply{bottomMargin=5};scaleType=ImageView.ScaleType.CENTER_CROP}
+  val card=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(6,8,6,8);background=bg(when(selected){4->Color.rgb(27,32,77);5->Color.rgb(8,76,88);else->Color.rgb(247,243,250)},styles[selected].second)}
+  if(selected==4)card.addView(text("✦  STAR DISCOVERED  ✦",9f,Color.rgb(190,205,255),true).apply{gravity=Gravity.CENTER})
+  if(selected==5)card.addView(text("🫧  NEW ARRIVAL  🫧",9f,Color.rgb(160,255,240),true).apply{gravity=Gravity.CENTER})
+  val pic=ImageView(this).apply{layoutParams=LinearLayout.LayoutParams(if(selected>=4)64 else 54,if(selected>=4)64 else 54).apply{bottomMargin=5};scaleType=ImageView.ScaleType.CENTER_CROP}
   if(avatar.isNotBlank())Glide.with(this).load(avatar).circleCrop().into(pic)
   card.addView(pic)
-  card.addView(text(name,12f,Color.rgb(40,24,52),true).apply{gravity=Gravity.CENTER;maxLines=2})
+  card.addView(text(name,12f,if(selected>=4)Color.WHITE else Color.rgb(40,24,52),true).apply{gravity=Gravity.CENTER;maxLines=2})
   if(username.isNotBlank())card.addView(text(username,9f,Color.DKGRAY).apply{gravity=Gravity.CENTER;maxLines=1})
   target.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=4;rightMargin=4})
   if(selected==0 || selected==1){
