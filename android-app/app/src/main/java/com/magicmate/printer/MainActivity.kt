@@ -28,7 +28,7 @@ class MainActivity : Activity() {
  private var status:TextView?=null
  private fun bg(c:Int,s:Int=0)=GradientDrawable().apply{setColor(c);cornerRadius=18f;if(s!=0)setStroke(2,s)}
  private fun text(t:String,n:Float,c:Int=Color.WHITE,b:Boolean=false)=TextView(this).apply{text=t;textSize=n;setTextColor(c);if(b)typeface=Typeface.DEFAULT_BOLD}
- override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);selected=getPreferences(0).getInt("style",0).coerceIn(0,3);picker()}
+ override fun onCreate(savedInstanceState:Bundle?){super.onCreate(savedInstanceState);selected=getPreferences(0).getInt("style",0).coerceIn(0,3);if(getPreferences(0).getBoolean("dashboard",false)){dashboard()}else{picker()}}
  private fun picker(){
   requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
   val root=LinearLayout(this).apply{orientation=1;setPadding(22,24,22,24);gravity=Gravity.CENTER;setBackgroundColor(Color.rgb(13,9,22))}
@@ -40,7 +40,7 @@ class MainActivity : Activity() {
    card.addView(text(s.machine,13f,Color.WHITE,true).apply{setPadding(0,6,0,4)})
    card.addView(text(s.line,12f,Color.LTGRAY))
    root.addView(card,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=11})
-   card.setOnClickListener{selected=i;getPreferences(0).edit().putInt("style",i).apply();dashboard()}
+   card.setOnClickListener{selected=i;getPreferences(0).edit().putInt("style",i).putBoolean("dashboard",true).apply();dashboard()}
   }
   setContentView(ScrollView(this).apply{addView(root)})
  }
@@ -52,6 +52,7 @@ class MainActivity : Activity() {
   return box
  }
  private fun dashboard(){
+  getPreferences(0).edit().putBoolean("dashboard",true).apply()
   requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
   val s=styles[selected]
   val root=LinearLayout(this).apply{orientation=1;setPadding(14,10,14,10);setBackgroundColor(Color.rgb(10,8,17))}
@@ -104,6 +105,13 @@ class MainActivity : Activity() {
   row.addView(pic);row.addView(words,LinearLayout.LayoutParams(0,-2,1f))
   list.addView(row,0,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=5})
   while(list.childCount>5)list.removeViewAt(list.childCount-1)
+ }
+ override fun onBackPressed(){
+  try{socket?.disconnect();socket?.off()}catch(_:Exception){}
+  socket=null
+  getPreferences(0).edit().putBoolean("dashboard",false).apply()
+  requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+  picker()
  }
  override fun onDestroy(){try{socket?.disconnect();socket?.off()}catch(_:Exception){};super.onDestroy()}
 }
