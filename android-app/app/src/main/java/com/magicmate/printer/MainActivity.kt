@@ -91,7 +91,8 @@ class MainActivity : Activity() {
   val detail=j.optString("detail","Interacted with the LIVE")
   val avatar=j.optString("avatar","")
   val kind=(j.optString("event",j.optString("type",""))+" "+detail).lowercase()
-  val root=findViewById<View>(android.R.id.content) as? LinearLayout?:return
+  val content=findViewById<FrameLayout>(android.R.id.content)
+  val root=content.getChildAt(0) as? LinearLayout?:return
   val body=root.getChildAt(1) as? LinearLayout?:return
   val box=body.getChildAt(if(kind.contains("gift"))2 else 0) as? LinearLayout?:return
   val list=box.findViewWithTag<LinearLayout>(if(kind.contains("gift"))"LIVE ACTIVITY" else "NEW VIEWERS")?:return
