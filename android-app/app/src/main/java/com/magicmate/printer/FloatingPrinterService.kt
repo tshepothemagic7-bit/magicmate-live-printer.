@@ -37,8 +37,11 @@ class FloatingPrinterService : Service() {
   val status=TextView(this).apply { text="Connecting to LIVE…"; tag="status"; textSize=11f; setTextColor(Color.LTGRAY); setPadding(12,7,12,5) }
   val check=CheckBox(this).apply { text="Auto-print events"; isChecked=true; setTextColor(Color.WHITE); setOnCheckedChangeListener { _,v -> auto=v } }
   feed=LinearLayout(this).apply { orientation=1; setPadding(8,6,8,8) }
-  box.addView(head); box.addView(status); box.addView(check); box.addView(ScrollView(this).apply { addView(feed) },LinearLayout.LayoutParams(-1,330))
-  val p=WindowManager.LayoutParams((resources.displayMetrics.widthPixels*.88f).toInt(),-2,if(Build.VERSION.SDK_INT>=26) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,PixelFormat.TRANSLUCENT).apply { gravity=Gravity.TOP or Gravity.CENTER_HORIZONTAL; y=90 }
+  box.addView(head); box.addView(status); box.addView(check)
+  val feedScroll=ScrollView(this).apply { isFillViewport=true; addView(feed) }
+  box.addView(feedScroll,LinearLayout.LayoutParams(-1,0,1f))
+  val panelHeight=(resources.displayMetrics.heightPixels*.74f).toInt()
+  val p=WindowManager.LayoutParams((resources.displayMetrics.widthPixels*.88f).toInt(),panelHeight,if(Build.VERSION.SDK_INT>=26) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_PHONE,WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,PixelFormat.TRANSLUCENT).apply { gravity=Gravity.TOP or Gravity.CENTER_HORIZONTAL; y=90 }
   head.setOnTouchListener(object:View.OnTouchListener {
    var x=0; var y=0; var ox=0; var oy=0
    override fun onTouch(v:View,e:MotionEvent):Boolean { when(e.action) { MotionEvent.ACTION_DOWN->{x=e.rawX.toInt();y=e.rawY.toInt();ox=p.x;oy=p.y;return true}; MotionEvent.ACTION_MOVE->{p.x=ox+e.rawX.toInt()-x;p.y=oy+e.rawY.toInt()-y;wm?.updateViewLayout(box,p);return true} };return false }
