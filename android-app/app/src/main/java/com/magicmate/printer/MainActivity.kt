@@ -215,6 +215,12 @@ class MainActivity : Activity() {
    printerView?.animate()?.scaleX(0.97f)?.scaleY(0.94f)?.setDuration(90)?.withEndAction{
     printerView?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(160)?.start()
    }?.start()
+  }else if(selected==4){
+   card.alpha=0f;card.scaleX=0.25f;card.scaleY=0.25f
+   card.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(850).setInterpolator(DecelerateInterpolator()).start()
+  }else if(selected==5){
+   card.alpha=0f;card.translationY=85f
+   card.animate().alpha(1f).translationY(0f).setDuration(950).setInterpolator(DecelerateInterpolator()).start()
   }else{
    card.alpha=0f
    card.animate().alpha(1f).setDuration(450).start()
