@@ -5,6 +5,11 @@ import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.media.AudioManager
+import android.media.ToneGenerator
+import android.os.Handler
+import android.os.Looper
+import android.view.animation.DecelerateInterpolator
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.view.Gravity
@@ -30,6 +35,9 @@ class MainActivity : Activity() {
  private var viewerGrid:LinearLayout?=null
  private var viewerScroll:ScrollView?=null
  private var currentViewerRow:LinearLayout?=null
+ private var printerView:LinearLayout?=null
+ private var printerSound:ToneGenerator?=null
+ private val soundHandler=Handler(Looper.getMainLooper())
  private var tts:TextToSpeech?=null
  private var ttsReady=false
  private val pendingSpeech=mutableListOf<String>()
@@ -79,7 +87,7 @@ class MainActivity : Activity() {
   getPreferences(0).edit().putBoolean("dashboard",true).apply()
   requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
   val s=styles[selected]
-  viewerGrid=null;viewerScroll=null;currentViewerRow=null
+  viewerGrid=null;viewerScroll=null;currentViewerRow=null;printerView=null
   val root=LinearLayout(this).apply{orientation=1;setPadding(12,8,12,8);setBackgroundColor(Color.rgb(10,8,17))}
   val header=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
   header.addView(text(s.name,20f,s.accent,true),LinearLayout.LayoutParams(0,-2,1f))
@@ -92,6 +100,7 @@ class MainActivity : Activity() {
     centre.addView(text("🖨️ PRINTER READY",22f,Color.rgb(255,190,70),true).apply{gravity=Gravity.CENTER})
     centre.addView(text("VIEWER FACTORY  •  AUTO PRINT ON JOIN",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,3,0,6)})
     val printer=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(8,5,8,5);background=bg(Color.rgb(64,43,78),s.second)}
+    printerView=printer
     printer.addView(text("┌──────────────────────┐",14f,s.second,true).apply{gravity=Gravity.CENTER})
     printer.addView(text("🖨️",46f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
     printer.addView(text("PRINTING VIEWER PROFILES",12f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
@@ -102,6 +111,7 @@ class MainActivity : Activity() {
     centre.addView(text("🖨️ READY TO PRINT",22f,Color.rgb(255,210,90),true).apply{gravity=Gravity.CENTER})
     centre.addView(text("MYSTERY PRINT LAB",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,3,0,6)})
     val mystery=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(10,7,10,7);background=bg(Color.rgb(47,31,68),s.second)}
+    printerView=mystery
     mystery.addView(text("╔══════════════════════╗",14f,s.second,true).apply{gravity=Gravity.CENTER})
     mystery.addView(text("🖨️",48f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
     mystery.addView(text("MYSTERY PAPER LOADING…",12f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
@@ -178,6 +188,21 @@ class MainActivity : Activity() {
   card.addView(text(name,12f,Color.rgb(40,24,52),true).apply{gravity=Gravity.CENTER;maxLines=2})
   if(username.isNotBlank())card.addView(text(username,9f,Color.DKGRAY).apply{gravity=Gravity.CENTER;maxLines=1})
   target.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=4;rightMargin=4})
+  if(selected==0 || selected==1){
+   playPrinterSound()
+   card.alpha=0f
+   card.translationY=-115f
+   card.scaleX=0.92f
+   card.scaleY=0.92f
+   card.animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f)
+    .setDuration(720).setInterpolator(DecelerateInterpolator()).start()
+   printerView?.animate()?.scaleX(0.97f)?.scaleY(0.94f)?.setDuration(90)?.withEndAction{
+    printerView?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(160)?.start()
+   }?.start()
+  }else{
+   card.alpha=0f
+   card.animate().alpha(1f).setDuration(450).start()
+  }
   viewerScroll?.post{viewerScroll?.smoothScrollTo(0,grid.height)}
  }
 
@@ -197,6 +222,17 @@ class MainActivity : Activity() {
   while(list.childCount>20)list.removeViewAt(list.childCount-1)
  }
 
+ private fun playPrinterSound(){
+  try{
+   if(printerSound==null)printerSound=ToneGenerator(AudioManager.STREAM_MUSIC,75)
+   val tg=printerSound?:return
+   tg.startTone(ToneGenerator.TONE_PROP_BEEP,75)
+   soundHandler.postDelayed({tg.startTone(ToneGenerator.TONE_PROP_BEEP,55)},95)
+   soundHandler.postDelayed({tg.startTone(ToneGenerator.TONE_PROP_BEEP,75)},180)
+   soundHandler.postDelayed({tg.startTone(ToneGenerator.TONE_PROP_ACK,110)},285)
+  }catch(_:Exception){}
+ }
+
  private fun say(message:String){
   if(ttsReady)tts?.speak(message,TextToSpeech.QUEUE_ADD,null,"gift-"+System.currentTimeMillis())
  }
@@ -211,6 +247,9 @@ class MainActivity : Activity() {
  override fun onDestroy(){
   try{socket?.disconnect();socket?.off()}catch(_:Exception){}
   tts?.stop();tts?.shutdown();tts=null
+  soundHandler.removeCallbacksAndMessages(null)
+  try{printerSound?.release()}catch(_:Exception){}
+  printerSound=null
   super.onDestroy()
  }
 }
