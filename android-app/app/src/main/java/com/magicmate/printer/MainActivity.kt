@@ -155,7 +155,7 @@ class MainActivity : Activity() {
     topBar.addView(text("     ",10f,Color.DKGRAY))
     val printHead=Pen3DView()
     penView=printHead
-    topBar.addView(printHead,LinearLayout.LayoutParams(42,76))
+    topBar.addView(printHead,LinearLayout.LayoutParams(84,152))
     topBar.addView(text("     ",10f,Color.DKGRAY))
     topBar.addView(text("▰",22f,Color.rgb(235,45,20),true))
     paper.addView(topBar,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=5})
