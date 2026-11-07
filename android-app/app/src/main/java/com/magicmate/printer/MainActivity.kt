@@ -222,8 +222,8 @@ class MainActivity : Activity() {
   if(selected==5)card.addView(text("🫧  NEW ARRIVAL  🫧",9f,Color.rgb(160,255,240),true).apply{gravity=Gravity.CENTER})
   val pic=ImageView(this).apply{layoutParams=LinearLayout.LayoutParams(if(selected==0)43 else if(selected>=4)64 else 54,if(selected==0)43 else if(selected>=4)64 else 54).apply{bottomMargin=4};scaleType=ImageView.ScaleType.CENTER_CROP}
   if(avatar.isNotBlank()){
-   val request=Glide.with(this).load(avatar).circleCrop()
-   if(selected==0)request.transform(com.bumptech.glide.load.MultiTransformation(com.bumptech.glide.load.resource.bitmap.CircleCrop(),com.bumptech.glide.load.resource.bitmap.GrayscaleTransformation())).into(pic) else request.into(pic)
+   if(selected==0)pic.colorFilter=ColorMatrixColorFilter(ColorMatrix().apply{setSaturation(0f)})
+   Glide.with(this).load(avatar).circleCrop().into(pic)
   }
   card.addView(pic)
   card.addView(text(name,if(selected==0)10f else 12f,if(selected>=4)Color.WHITE else Color.rgb(40,40,40),true).apply{gravity=Gravity.CENTER;maxLines=1})
