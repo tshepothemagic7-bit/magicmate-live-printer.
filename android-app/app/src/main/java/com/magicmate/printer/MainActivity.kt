@@ -3,6 +3,8 @@ package com.magicmate.printer
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
@@ -24,7 +26,7 @@ import java.util.Locale
 class MainActivity : Activity() {
  private data class Style(val name:String,val line:String,val accent:Int,val second:Int,val machine:String)
  private val styles=listOf(
-  Style("THE VIEWER FACTORY","COMMENT YOUR NAME TO ENTER THE FACTORY!  •  SEND A GIFT TO ACTIVATE THE MACHINE!",Color.rgb(190,75,255),Color.rgb(255,184,64),"⚙  VIEWER IN  •  RECEIPT OUT  ⚙"),
+  Style("LIVE RECEIPT PRESS","JOIN THE LIVE AND GET PRINTED!  •  SEND A GIFT TO MAKE THE PRINTER ROLL!",Color.rgb(83,220,64),Color.rgb(245,65,35),"YOUR NAME COULD BE NEXT ON THE PAPER"),
   Style("THE MYSTERY PRINTER","SEND A GIFT TO UNLOCK THE PRINTER!  •  COMMENT TO MAKE THE MACHINE REACT!",Color.rgb(165,83,255),Color.rgb(255,205,75),"✦  A SURPRISE IS WAITING  ✦"),
   Style("THE VIP EXPERIENCE","SEND A GIFT TO JOIN THE VIP WALL!  •  COMMENT AND GET NOTICED!",Color.rgb(255,190,65),Color.rgb(190,90,255),"✧  VIP LOUNGE  ✧"),
   Style("THE DIGITAL ARENA","COMMENT TO JOIN THE ARENA!  •  SEND A GIFT TO POWER UP!",Color.rgb(60,210,255),Color.rgb(190,75,255),"⚡  ARENA OPEN  ⚡"),
@@ -38,6 +40,7 @@ class MainActivity : Activity() {
  private var viewerScroll:ScrollView?=null
  private var currentViewerRow:LinearLayout?=null
  private var printerView:LinearLayout?=null
+ private var paperView:LinearLayout?=null
  private var printerSound:ToneGenerator?=null
  private val soundHandler=Handler(Looper.getMainLooper())
  private var tts:TextToSpeech?=null
@@ -89,25 +92,40 @@ class MainActivity : Activity() {
   getPreferences(0).edit().putBoolean("dashboard",true).apply()
   requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
   val s=styles[selected]
-  viewerGrid=null;viewerScroll=null;currentViewerRow=null;printerView=null
+  viewerGrid=null;viewerScroll=null;currentViewerRow=null;printerView=null;paperView=null
   val root=LinearLayout(this).apply{orientation=1;setPadding(12,8,12,8);setBackgroundColor(Color.rgb(10,8,17))}
   val header=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
   header.addView(text(s.name,20f,s.accent,true),LinearLayout.LayoutParams(0,-2,1f))
   header.addView(text("● LIVE",14f,Color.rgb(255,70,90),true))
   val body=LinearLayout(this).apply{orientation=0}
   val centre=LinearLayout(this).apply{orientation=1;setPadding(10,8,10,8);gravity=Gravity.CENTER_HORIZONTAL
-   setBackground(bg(when(selected){2->Color.rgb(39,29,12);3->Color.rgb(7,22,38);4->Color.rgb(8,13,38);5->Color.rgb(3,31,43);else->Color.rgb(30,19,43)},s.accent))}
+   setBackground(bg(when(selected){0->Color.rgb(50,65,44);2->Color.rgb(39,29,12);3->Color.rgb(7,22,38);4->Color.rgb(8,13,38);5->Color.rgb(3,31,43);else->Color.rgb(30,19,43)},s.accent))}
   when(selected){
    0->{
-    centre.addView(text("🖨️ PRINTER READY",22f,Color.rgb(255,190,70),true).apply{gravity=Gravity.CENTER})
-    centre.addView(text("VIEWER FACTORY  •  AUTO PRINT ON JOIN",11f,Color.WHITE,true).apply{gravity=Gravity.CENTER;setPadding(0,3,0,6)})
-    val printer=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(8,5,8,5);background=bg(Color.rgb(64,43,78),s.second)}
-    printerView=printer
-    printer.addView(text("┌──────────────────────┐",14f,s.second,true).apply{gravity=Gravity.CENTER})
-    printer.addView(text("🖨️",46f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
-    printer.addView(text("PRINTING VIEWER PROFILES",12f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
-    printer.addView(text("└─────── ▤ ▤ ─────────┘",14f,s.second,true).apply{gravity=Gravity.CENTER})
-    centre.addView(printer,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=7})
+    centre.addView(text("LIVE RECEIPT PRESS  •  READY",20f,Color.WHITE,true).apply{gravity=Gravity.CENTER})
+    centre.addView(text("EVERY NEW VIEWER IS PRINTED ON THE ROLL",10f,Color.rgb(220,255,210),true).apply{gravity=Gravity.CENTER;setPadding(0,3,0,7)})
+    val machine=LinearLayout(this).apply{orientation=0;gravity=Gravity.CENTER;setPadding(7,6,7,6);background=bg(Color.rgb(42,180,47),Color.rgb(24,105,28))}
+    printerView=machine
+    val leftRail=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(3,4,3,4);background=bg(Color.rgb(77,232,70),Color.rgb(30,130,34))}
+    leftRail.addView(text("●",13f,Color.BLACK,true))
+    leftRail.addView(text("┃\n┃\n┃\n┃\n┃\n┃",16f,Color.rgb(15,45,15),true).apply{gravity=Gravity.CENTER})
+    leftRail.addView(text("●",13f,Color.BLACK,true))
+    val rightRail=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(3,4,3,4);background=bg(Color.rgb(77,232,70),Color.rgb(30,130,34))}
+    rightRail.addView(text("●",13f,Color.BLACK,true))
+    rightRail.addView(text("┃\n┃\n┃\n┃\n┃\n┃",16f,Color.rgb(15,45,15),true).apply{gravity=Gravity.CENTER})
+    rightRail.addView(text("●",13f,Color.BLACK,true))
+    val paper=LinearLayout(this).apply{orientation=1;setPadding(7,5,7,5);background=bg(Color.rgb(250,249,241),Color.rgb(190,190,180))}
+    paperView=paper
+    val head=LinearLayout(this).apply{orientation=0;gravity=Gravity.CENTER_VERTICAL;setPadding(4,3,4,5);background=bg(Color.rgb(220,220,215),Color.rgb(120,120,115))}
+    head.addView(text("▰",18f,Color.rgb(30,65,210),true))
+    head.addView(text("  PRINT HEAD  ",10f,Color.DKGRAY,true))
+    head.addView(text("▰",18f,Color.rgb(30,65,210),true))
+    paper.addView(head,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=5})
+    paper.addView(text("LIVE VIEWER ROLL  •  AUTO PRINT",9f,Color.DKGRAY,true).apply{gravity=Gravity.CENTER;setPadding(0,2,0,5)})
+    machine.addView(leftRail,LinearLayout.LayoutParams(24,-1))
+    machine.addView(paper,LinearLayout.LayoutParams(0,-1,1f).apply{leftMargin=4;rightMargin=4})
+    machine.addView(rightRail,LinearLayout.LayoutParams(24,-1))
+    centre.addView(machine,LinearLayout.LayoutParams(-1,0,1f).apply{bottomMargin=6})
    }
    1->{
     centre.addView(text("🖨️ READY TO PRINT",22f,Color.rgb(255,210,90),true).apply{gravity=Gravity.CENTER})
@@ -147,8 +165,11 @@ class MainActivity : Activity() {
   }
   viewerGrid=LinearLayout(this).apply{orientation=1;setPadding(4,4,4,4)}
   viewerScroll=ScrollView(this).apply{isFillViewport=true;addView(viewerGrid)}
-  centre.addView(text(when(selected){2->"NEW VIP ARRIVALS";3->"NEW PLAYERS JOINING";4->"NEW STARS IN THE GALAXY";5->"NEW CREATURES IN THE AQUARIUM";else->"LIVE PRINT QUEUE"},12f,s.accent,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,3)})
-  centre.addView(viewerScroll,LinearLayout.LayoutParams(-1,0,1f))
+  if(selected==0){paperView?.addView(viewerScroll,LinearLayout.LayoutParams(-1,0,1f))}
+  else{
+   centre.addView(text(when(selected){2->"NEW VIP ARRIVALS";3->"NEW PLAYERS JOINING";4->"NEW STARS IN THE GALAXY";5->"NEW CREATURES IN THE AQUARIUM";else->"LIVE PRINT QUEUE"},12f,s.accent,true).apply{gravity=Gravity.CENTER;setPadding(0,5,0,3)})
+   centre.addView(viewerScroll,LinearLayout.LayoutParams(-1,0,1f))
+  }
   centre.addView(text(s.line,11f,s.second,true).apply{gravity=Gravity.CENTER;setPadding(2,6,2,0)})
   val right=panel("GIFTS & LIVE ACTIVITY",s.second)
   body.addView(centre,LinearLayout.LayoutParams(0,-1,2.25f).apply{rightMargin=8})
@@ -191,19 +212,24 @@ class MainActivity : Activity() {
  private fun addViewer(name:String,username:String,avatar:String){
   val grid=viewerGrid?:return
   val row=currentViewerRow
-  val target=if(row==null || row.childCount>=2){
+  val columns=if(selected==0)3 else 2
+  val target=if(row==null || row.childCount>=columns){
    LinearLayout(this).apply{orientation=0;gravity=Gravity.TOP;weightSum=2f}
     .also{currentViewerRow=it;grid.addView(it,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=7})}
   }else row
-  val card=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(6,8,6,8);background=bg(when(selected){4->Color.rgb(27,32,77);5->Color.rgb(8,76,88);else->Color.rgb(247,243,250)},styles[selected].second)}
+  val card=LinearLayout(this).apply{orientation=1;gravity=Gravity.CENTER;setPadding(if(selected==0)3 else 6,if(selected==0)5 else 8,if(selected==0)3 else 6,if(selected==0)5 else 8);background=bg(when(selected){0->Color.rgb(250,249,241);4->Color.rgb(27,32,77);5->Color.rgb(8,76,88);else->Color.rgb(247,243,250)},if(selected==0)Color.rgb(205,205,195) else styles[selected].second)}
   if(selected==4)card.addView(text("✦  STAR DISCOVERED  ✦",9f,Color.rgb(190,205,255),true).apply{gravity=Gravity.CENTER})
   if(selected==5)card.addView(text("🫧  NEW ARRIVAL  🫧",9f,Color.rgb(160,255,240),true).apply{gravity=Gravity.CENTER})
-  val pic=ImageView(this).apply{layoutParams=LinearLayout.LayoutParams(if(selected>=4)64 else 54,if(selected>=4)64 else 54).apply{bottomMargin=5};scaleType=ImageView.ScaleType.CENTER_CROP}
-  if(avatar.isNotBlank())Glide.with(this).load(avatar).circleCrop().into(pic)
+  val pic=ImageView(this).apply{layoutParams=LinearLayout.LayoutParams(if(selected==0)43 else if(selected>=4)64 else 54,if(selected==0)43 else if(selected>=4)64 else 54).apply{bottomMargin=4};scaleType=ImageView.ScaleType.CENTER_CROP}
+  if(avatar.isNotBlank()){
+   val request=Glide.with(this).load(avatar).circleCrop()
+   if(selected==0)request.transform(com.bumptech.glide.load.MultiTransformation(com.bumptech.glide.load.resource.bitmap.CircleCrop(),com.bumptech.glide.load.resource.bitmap.GrayscaleTransformation())).into(pic) else request.into(pic)
+  }
   card.addView(pic)
-  card.addView(text(name,12f,if(selected>=4)Color.WHITE else Color.rgb(40,24,52),true).apply{gravity=Gravity.CENTER;maxLines=2})
-  if(username.isNotBlank())card.addView(text(username,9f,Color.DKGRAY).apply{gravity=Gravity.CENTER;maxLines=1})
-  target.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=4;rightMargin=4})
+  card.addView(text(name,if(selected==0)10f else 12f,if(selected>=4)Color.WHITE else Color.rgb(40,40,40),true).apply{gravity=Gravity.CENTER;maxLines=1})
+  if(selected==0)card.addView(text("Thank Like…",8f,Color.GRAY).apply{gravity=Gravity.CENTER;maxLines=1})
+  else if(username.isNotBlank())card.addView(text(username,9f,Color.DKGRAY).apply{gravity=Gravity.CENTER;maxLines=1})
+  target.addView(card,LinearLayout.LayoutParams(0,-2,1f).apply{leftMargin=if(selected==0)2 else 4;rightMargin=if(selected==0)2 else 4})
   if(selected==0 || selected==1){
    playPrinterSound()
    card.alpha=0f
