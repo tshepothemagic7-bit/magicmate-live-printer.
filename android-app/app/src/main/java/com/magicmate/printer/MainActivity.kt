@@ -20,6 +20,7 @@ import android.view.animation.DecelerateInterpolator
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.view.Gravity
+import android.view.View
 import android.widget.*
 import com.bumptech.glide.Glide
 import io.socket.client.IO
