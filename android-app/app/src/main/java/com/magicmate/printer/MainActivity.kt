@@ -5,6 +5,11 @@ import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
@@ -42,6 +47,7 @@ class MainActivity : Activity() {
  private var currentViewerRow:LinearLayout?=null
  private var printerView:LinearLayout?=null
  private var paperView:LinearLayout?=null
+ private var penView:Pen3DView?=null
  private var printerSound:ToneGenerator?=null
  private val soundHandler=Handler(Looper.getMainLooper())
  private var tts:TextToSpeech?=null
@@ -93,7 +99,7 @@ class MainActivity : Activity() {
   getPreferences(0).edit().putBoolean("dashboard",true).apply()
   requestedOrientation=ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
   val s=styles[selected]
-  viewerGrid=null;viewerScroll=null;currentViewerRow=null;printerView=null;paperView=null
+  viewerGrid=null;viewerScroll=null;currentViewerRow=null;printerView=null;paperView=null;penView=null
   val root=LinearLayout(this).apply{orientation=1;setPadding(12,8,12,8);setBackgroundColor(Color.rgb(10,8,17))}
   val header=LinearLayout(this).apply{gravity=Gravity.CENTER_VERTICAL}
   header.addView(text(s.name,20f,s.accent,true),LinearLayout.LayoutParams(0,-2,1f))
@@ -146,8 +152,9 @@ class MainActivity : Activity() {
     val topBar=LinearLayout(this).apply{orientation=0;gravity=Gravity.CENTER_VERTICAL;setPadding(4,4,4,4);background=bg(Color.rgb(205,205,200),Color.rgb(130,130,125))}
     topBar.addView(text("▰",22f,Color.rgb(235,45,20),true))
     topBar.addView(text("     ",10f,Color.DKGRAY))
-    val printHead=text("▮",25f,Color.rgb(35,55,210),true)
-    topBar.addView(printHead)
+    val printHead=Pen3DView()
+    penView=printHead
+    topBar.addView(printHead,LinearLayout.LayoutParams(42,76))
     topBar.addView(text("     ",10f,Color.DKGRAY))
     topBar.addView(text("▰",22f,Color.rgb(235,45,20),true))
     paper.addView(topBar,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=5})
@@ -271,6 +278,11 @@ class MainActivity : Activity() {
    printerView?.animate()?.scaleX(0.97f)?.scaleY(0.94f)?.setDuration(90)?.withEndAction{
     printerView?.animate()?.scaleX(1f)?.scaleY(1f)?.setDuration(160)?.start()
    }?.start()
+   penView?.animate()?.rotation(-24f)?.translationX(-24f)?.setDuration(220)?.withEndAction{
+    penView?.animate()?.rotation(24f)?.translationX(24f)?.setDuration(440)?.withEndAction{
+     penView?.animate()?.rotation(0f)?.translationX(0f)?.setDuration(220)?.start()
+    }?.start()
+   }?.start()
   }else if(selected==4){
    card.alpha=0f;card.scaleX=0.25f;card.scaleY=0.25f
    card.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(850).setInterpolator(DecelerateInterpolator()).start()
@@ -298,6 +310,53 @@ class MainActivity : Activity() {
   row.addView(pic);row.addView(words,LinearLayout.LayoutParams(0,-2,1f))
   list.addView(row,0,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=5})
   while(list.childCount>20)list.removeViewAt(list.childCount-1)
+ }
+
+ private inner class Pen3DView:View(this@MainActivity){
+  private val bodyPaint=Paint(Paint.ANTI_ALIAS_FLAG)
+  private val detailPaint=Paint(Paint.ANTI_ALIAS_FLAG)
+  private val penPath=Path()
+  override fun onDraw(canvas:Canvas){
+   super.onDraw(canvas)
+   val sx=width/42f;val sy=height/76f
+   canvas.save()
+   canvas.scale(sx,sy)
+   canvas.rotate(-8f,21f,38f)
+   bodyPaint.color=Color.BLACK
+   bodyPaint.alpha=75
+   canvas.drawOval(12f,7f,34f,72f,bodyPaint)
+   bodyPaint.alpha=255
+   penPath.reset()
+   penPath.moveTo(15f,17f)
+   penPath.quadTo(21f,10f,27f,17f)
+   penPath.lineTo(26f,58f)
+   penPath.lineTo(21f,73f)
+   penPath.lineTo(16f,58f)
+   penPath.close()
+   bodyPaint.shader=LinearGradient(14f,0f,29f,0f, intArrayOf(Color.rgb(12,35,150),Color.rgb(80,125,255),Color.rgb(5,20,105)),null,Shader.TileMode.CLAMP)
+   canvas.drawPath(penPath,bodyPaint)
+   bodyPaint.shader=null
+   detailPaint.color=Color.rgb(190,215,255)
+   detailPaint.strokeWidth=1.8f
+   canvas.drawLine(18f,21f,18f,54f,detailPaint)
+   detailPaint.color=Color.rgb(8,20,80)
+   detailPaint.strokeWidth=2.4f
+   canvas.drawLine(25f,21f,25f,55f,detailPaint)
+   bodyPaint.color=Color.rgb(220,225,235)
+   canvas.drawRoundRect(16f,15f,26f,21f,2f,2f,bodyPaint)
+   bodyPaint.color=Color.rgb(30,40,65)
+   canvas.drawRect(17f,11f,25f,16f,bodyPaint)
+   bodyPaint.color=Color.rgb(35,45,75)
+   canvas.drawRoundRect(18f,5f,24f,14f,3f,3f,bodyPaint)
+   bodyPaint.color=Color.rgb(210,215,225)
+   canvas.drawRect(18f,56f,24f,60f,bodyPaint)
+   bodyPaint.shader=LinearGradient(18f,60f,24f,74f,Color.rgb(210,210,220),Color.rgb(25,30,45),Shader.TileMode.CLAMP)
+   penPath.reset()
+   penPath.moveTo(16f,59f);penPath.lineTo(26f,59f);penPath.lineTo(21f,74f);penPath.close()
+   canvas.drawPath(penPath,bodyPaint)
+   bodyPaint.shader=null
+   canvas.restore()
+  }
  }
 
  private fun playPrinterSound(){
