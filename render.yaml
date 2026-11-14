@@ -10,4 +10,4 @@ services:
       - key: NODE_VERSION
         value: 22.19.0
       - key: TIKTOK_USERNAME
-        value: tshepothemagician
+        value: laura_8086
