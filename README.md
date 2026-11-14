@@ -1,6 +1,6 @@
 # MagicMate LIVE Printer
 
-A mobile-friendly dashboard for TikTok LIVE events. It connects to **@tshepothemagician**, shows viewer joins, comments and gifts in real time, and lets you print each event individually.
+A mobile-friendly dashboard for TikTok LIVE events. It connects to **@laura_8086**, shows viewer joins, comments and gifts in real time, and lets you print each event individually.
 
 ## Run locally
 
